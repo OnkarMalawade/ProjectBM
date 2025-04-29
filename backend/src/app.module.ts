@@ -11,6 +11,16 @@ import { InvoicesModule } from './invoices/invoices.module';
 import { UploadsModule } from './uploads/uploads.module';
 
 @Module({
-  imports: [TypeOrmModule.forRoot(typeOrmConfig), AuthModule, UsersModule, ProjectsModule, BidsModule, MessagesModule, MilestonesModule, InvoicesModule, UploadsModule],
+  imports: [
+    TypeOrmModule.forRoot(typeOrmConfig),
+    AuthModule,
+    UsersModule,
+    ProjectsModule,
+    BidsModule,
+    MessagesModule,
+    MilestonesModule,
+    InvoicesModule,
+    UploadsModule,
+  ],
 })
 export class AppModule {}

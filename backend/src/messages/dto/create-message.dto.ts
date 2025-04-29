@@ -1,13 +1,14 @@
-import { IsNotEmpty, IsNumber, MaxLength } from 'class-validator';
+import { IsNotEmpty, IsNumber, MaxLength, IsOptional } from 'class-validator';
+import { Express } from 'express';
 
 export class CreateMessageDto {
   @IsNumber()
   receiverId: number;
 
-  @IsNumber()
-  projectId: number;
-
   @IsNotEmpty()
   @MaxLength(2000)
   content: string;
+
+  @IsOptional()
+  files?: Express.Multer.File[];
 }

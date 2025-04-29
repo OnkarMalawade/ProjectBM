@@ -3,37 +3,56 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Invoice } from './entities/invoice.entity';
 import { CreateInvoiceDto } from './dto/create-invoice.dto';
-import { Milestone } from '../milestones/entities/milestone.entity';
+import { Project } from '../projects/entities/project.entity';
 
 @Injectable()
 export class InvoicesService {
   constructor(
     @InjectRepository(Invoice)
-    private invoiceRepository: Repository<Invoice>,
-
-    @InjectRepository(Milestone)
-    private milestoneRepository: Repository<Milestone>,
+    private invoiceRepo: Repository<Invoice>,
+    @InjectRepository(Project)
+    private projectRepo: Repository<Project>,
   ) {}
 
-  async createInvoice(createInvoiceDto: CreateInvoiceDto) {
-    const milestone = await this.milestoneRepository.findOne({
-      where: { id: createInvoiceDto.milestoneId },
+  async createInvoice(dto: CreateInvoiceDto) {
+    const project = await this.projectRepo.findOne({
+      where: { id: dto.projectId },
+      relations: ['client', 'assignedFreelancer'],
     });
 
-    if (!milestone) throw new NotFoundException('Milestone not found');
+    if (!project || !project.assignedFreelancer) {
+      throw new NotFoundException('Project or assigned freelancer not found');
+    }
 
-    const invoice = this.invoiceRepository.create({
-      milestone,
-      amount: milestone.amount,
-      issue_date: new Date().toISOString().split('T')[0], // Today's date
+    const invoice = this.invoiceRepo.create({
+      project,
+      client: project.client,
+      freelancer: project.assignedFreelancer,
+      amount: project.budget,
+      status: dto.status,
     });
 
-    return this.invoiceRepository.save(invoice);
+    return this.invoiceRepo.save(invoice);
   }
 
-  async getInvoicesByMilestone(milestoneId: number) {
-    return this.invoiceRepository.find({
-      where: { milestone: { id: milestoneId } },
+  async markAsPaid(id: number) {
+    const invoice = await this.invoiceRepo.findOneBy({ id });
+    if (!invoice) throw new NotFoundException('Invoice not found');
+
+    invoice.status = 'paid';
+    return this.invoiceRepo.save(invoice);
+  }
+
+  async findByFreelancerId(freelancerId: number) {
+    return this.invoiceRepo.find({
+      where: { freelancer: { id: freelancerId } },
+      relations: ['project', 'client', 'freelancer'],
+    });
+  }
+
+  async findAll() {
+    return this.invoiceRepo.find({
+      relations: ['project', 'client', 'freelancer'],
     });
   }
 }

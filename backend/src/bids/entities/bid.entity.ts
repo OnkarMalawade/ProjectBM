@@ -9,6 +9,11 @@ import {
 import { User } from '../../users/entities/user.entity';
 import { Project } from '../../projects/entities/project.entity';
 
+export enum BidStatus {
+  PENDING = 'pending',
+  ACCEPTED = 'accepted',
+}
+
 @Entity('bids')
 export class Bid {
   @PrimaryGeneratedColumn()
@@ -33,4 +38,7 @@ export class Bid {
 
   @CreateDateColumn()
   created_at: Date;
+
+  @Column({ type: 'enum', enum: BidStatus, default: BidStatus.PENDING })
+  status: BidStatus;
 }

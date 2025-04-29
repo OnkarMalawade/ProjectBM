@@ -1,13 +1,13 @@
+import { Project } from 'src/projects/entities/project.entity';
+import { User } from 'src/users/entities/user.entity';
 import {
-  Entity,
-  PrimaryGeneratedColumn,
   Column,
-  ManyToOne,
-  JoinColumn,
   CreateDateColumn,
+  Entity,
+  JoinColumn,
+  ManyToOne,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
-import { User } from '../../users/entities/user.entity';
-import { Project } from '../../projects/entities/project.entity';
 
 @Entity('messages')
 export class Message {
@@ -28,6 +28,9 @@ export class Message {
 
   @Column('text')
   content: string;
+
+  @Column('simple-array', { nullable: true })
+  fileUrls: string[];
 
   @CreateDateColumn()
   created_at: Date;

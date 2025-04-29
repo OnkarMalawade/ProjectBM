@@ -24,6 +24,7 @@ export class ProjectsController {
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @Roles('client')
   create(@Body() createProjectDto: CreateProjectDto, @Request() req) {
+    console.log('Creating Project by:', req.user);
     return this.projectsService.create(createProjectDto, req.user);
   }
 

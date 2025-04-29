@@ -9,6 +9,7 @@ import {
   UseInterceptors,
   UploadedFile,
   Put,
+  Get,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
@@ -53,7 +54,8 @@ export class AuthController {
     @Body() updateUserDto: UpdateUserDto,
     @UploadedFile() file: Express.Multer.File,
   ) {
-    const userId = req.user.sub;
+    const userId = req.user.id;
+    console.log('Updating user ID:', userId);
 
     if (file) {
       updateUserDto.profile_image = file.filename; // Save filename to database
@@ -79,5 +81,15 @@ export class AuthController {
   async logout(@Request() req) {
     // For JWT, logout is handled frontend-side (remove token).
     return { message: 'Logged out successfully' };
+  }
+
+  @Get('profile')
+  @UseGuards(JwtAuthGuard)
+  async getProfile(@Request() req) {
+    const user = await this.usersService.findById(req.user.id);
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return user;
   }
 }

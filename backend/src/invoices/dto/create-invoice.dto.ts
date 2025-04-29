@@ -1,6 +1,9 @@
-import { IsNumber } from 'class-validator';
+import { IsNotEmpty, IsEnum, IsNumber } from 'class-validator';
 
 export class CreateInvoiceDto {
-  @IsNumber()
-  milestoneId: number;
+  @IsNotEmpty()
+  projectId: number;
+
+  @IsEnum(['pending', 'paid'])
+  status: 'pending' | 'paid';
 }

@@ -11,13 +11,23 @@ export class ProjectsService {
   constructor(
     @InjectRepository(Project)
     private projectsRepository: Repository<Project>,
+
+    @InjectRepository(User)
+    private usersRepository: Repository<User>,
   ) {}
 
-  async create(createProjectDto: CreateProjectDto, client: User) {
+  async create(createProjectDto: CreateProjectDto, clientPayload: any) {
+    const client = await this.usersRepository.findOneBy({
+      id: clientPayload.sub,
+    });
+
+    if (!client) throw new NotFoundException('Client not found');
+
     const project = this.projectsRepository.create({
       ...createProjectDto,
       client,
     });
+
     return this.projectsRepository.save(project);
   }
 

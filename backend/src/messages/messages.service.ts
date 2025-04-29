@@ -20,31 +20,39 @@ export class MessagesService {
     private readonly projectRepository: Repository<Project>,
   ) {}
 
-  async sendMessage(createMessageDto: CreateMessageDto, sender: User) {
+  async sendMessage(
+    projectId: number,
+    createMessageDto: CreateMessageDto,
+    sender: User,
+    files: Express.Multer.File[] = [],
+  ) {
+    const senderId = sender.id;
+
     const project = await this.projectRepository.findOne({
-      where: { id: createMessageDto.projectId },
+      where: { id: projectId },
       relations: ['client', 'assignedFreelancer'],
     });
 
-    if (!project) {
-      throw new NotFoundException('Project not found');
-    }
+    if (!project) throw new NotFoundException('Project not found');
 
-    // Authorization: Only client or assigned freelancer can send messages
-    if (
-      project.client.id !== sender.id &&
-      project.assignedFreelancer?.id !== sender.id
-    ) {
+    const isAuthorized =
+      project.client.id === senderId ||
+      project.assignedFreelancer?.id === senderId;
+
+    if (!isAuthorized) {
       throw new ForbiddenException(
         'You are not authorized to send a message on this project',
       );
     }
 
+    const fileUrls = files.map((file) => `/uploads/${file.filename}`);
+
     const message = this.messageRepository.create({
       content: createMessageDto.content,
-      sender,
+      sender: { id: senderId } as User,
       receiver: { id: createMessageDto.receiverId } as User,
       project,
+      fileUrls,
     });
 
     return this.messageRepository.save(message);
@@ -60,13 +68,12 @@ export class MessagesService {
       throw new NotFoundException('Project not found');
     }
 
-    // Authorization: Only client or assigned freelancer can view messages
-    if (
-      project.client.id !== userId &&
-      project.assignedFreelancer?.id !== userId
-    ) {
+    const isAuthorized =
+      project.client.id === userId || project.assignedFreelancer?.id === userId;
+
+    if (!isAuthorized) {
       throw new ForbiddenException(
-        'You are not authorized to view messages of this project',
+        'You are not authorized to view messages for this project',
       );
     }
 
