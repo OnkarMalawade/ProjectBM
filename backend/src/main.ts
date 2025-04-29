@@ -11,6 +11,11 @@ import { AllExceptionsFilter } from './common/filters/all-exceptions.filter';
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
+  app.enableCors({
+    origin: 'http://localhost:5173', // ✅ Allow only your frontend
+    credentials: true, // ✅ Allow cookies/auth headers
+  });
+
   app.useStaticAssets(join(__dirname, '..', 'uploads'), {
     prefix: '/uploads/',
   });
@@ -27,7 +32,6 @@ async function bootstrap() {
   // Global Filters
   app.useGlobalFilters(new AllExceptionsFilter());
 
-  app.enableCors();
   await app.listen(3000);
 }
 bootstrap();

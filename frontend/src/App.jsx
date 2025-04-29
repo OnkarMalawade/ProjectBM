@@ -1,70 +1,81 @@
-import {
-    BrowserRouter as Router,
-    Routes,
-    Route,
-    Navigate,
-} from "react-router-dom";
-import Login from "./pages/auth/Login";
-import Register from "./pages/auth/Register";
-import Dashboard from "./pages/Dashboard";
-import ProfileManagement from "./pages/ProfileManagement";
-import ProjectCreation from "./pages/client/ProjectCreation";
-import ProjectListing from "./pages/freelancer/ProjectListing";
-import ProjectDetail from "./pages/ProjectDetail";
-import Messaging from "./pages/Messaging";
-import FileUploads from "./pages/FileUploads";
-import Milestones from "./pages/Milestones";
-import Layout from "./components/Layout";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Profile from "./pages/Profile";
+import Landing from "./pages/Landing";
+import UpdateProfile from "./pages/UpdateProfile";
+import ProtectedRoute from "./routes/ProtectedRoute";
 import { AuthProvider } from "./context/AuthContext";
-import ProtectedRoute from "./components/ProtectedRoute";
+import Navbar from "./components/Navbar";
+import ProjectsPage from "./pages/ProjectsPage";
+import ProjectDetail from "./pages/ProjectDetail";
+import ClientProjectForm from "./pages/ClientProjectForm";
+import MyProjects from "./pages/MyProjects";
 
-function App() {
+export default function App() {
     return (
-        <AuthProvider>
-            <Router>
+        <BrowserRouter>
+            <AuthProvider>
+                <Navbar />
                 <Routes>
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/register" element={<Register />} />
+                    {/* Public Routes */}
+                    <Route path="/" element={<Landing />} />
+                    <Route path="/auth/login" element={<Login />} />
+                    <Route path="/auth/register" element={<Register />} />
+
+                    {/* Protected Routes */}
                     <Route
-                        path="/"
+                        path="/auth/profile"
                         element={
-                            <ProtectedRoute>
-                                <Layout />
+                            <ProtectedRoute
+                                allowedRoles={["freelancer", "client"]}
+                            >
+                                <Profile />
                             </ProtectedRoute>
                         }
-                    >
-                        <Route index element={<Dashboard />} />
-                        <Route path="profile" element={<ProfileManagement />} />
-                        <Route
-                            path="projects/create"
-                            element={<ProjectCreation />}
-                        />
-                        <Route
-                            path="projects/list"
-                            element={<ProjectListing />}
-                        />
-                        <Route
-                            path="projects/:id"
-                            element={<ProjectDetail />}
-                        />
-                        <Route
-                            path="messages/:projectId"
-                            element={<Messaging />}
-                        />
-                        <Route
-                            path="files/:projectId"
-                            element={<FileUploads />}
-                        />
-                        <Route
-                            path="milestones/:projectId"
-                            element={<Milestones />}
-                        />
-                    </Route>
-                    <Route path="*" element={<Navigate to="/" replace />} />
+                    />
+                    <Route
+                        path="/auth/update"
+                        element={
+                            <ProtectedRoute
+                                allowedRoles={["freelancer", "client"]}
+                            >
+                                <UpdateProfile />
+                            </ProtectedRoute>
+                        }
+                    />
+
+                    <Route path="/projects" element={<ProjectsPage />} />
+                    <Route path="/projects/:id" element={<ProjectDetail />} />
+                    <Route
+                        path="/projects/create"
+                        element={
+                            <ProtectedRoute allowedRoles={["client"]}>
+                                <ClientProjectForm />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/projects/edit/:id"
+                        element={
+                            <ProtectedRoute allowedRoles={["client"]}>
+                                <ClientProjectForm mode="edit" />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/projects/mine"
+                        element={
+                            <ProtectedRoute allowedRoles={["client"]}>
+                                <MyProjects />
+                            </ProtectedRoute>
+                        }
+                    />
+
+                    {/* Fallback Route */}
+                    <Route path="*" element={<Landing />} />
                 </Routes>
-            </Router>
-        </AuthProvider>
+            </AuthProvider>
+        </BrowserRouter>
     );
 }
-
-export default App;

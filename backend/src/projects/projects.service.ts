@@ -18,7 +18,7 @@ export class ProjectsService {
 
   async create(createProjectDto: CreateProjectDto, clientPayload: any) {
     const client = await this.usersRepository.findOneBy({
-      id: clientPayload.sub,
+      id: clientPayload.id,
     });
 
     if (!client) throw new NotFoundException('Client not found');
