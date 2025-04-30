@@ -22,15 +22,7 @@ This project has a NestJS backend and a ReactJS frontend. Follow the instruction
     * Create a `.env` file based on `.env.example` (if present).
     * Set necessary environment variables (e.g., database URLs, API keys).
 
-4.  **Run database migrations (if applicable):**
-    ```bash
-    # Example for TypeORM
-    npm run typeorm:migrate
-    # or
-    yarn typeorm:migrate
-    ```
-
-5.  **Start the backend development server:**
+4. **Start the backend development server:**
     ```bash
     npm run start:dev
     # or
@@ -52,32 +44,11 @@ This project has a NestJS backend and a ReactJS frontend. Follow the instruction
     yarn install
     ```
 
-3.  **Configure environment variables:**
-    * Create a `.env` file based on `.env.example` (if present).
-    * Set necessary environment variables (e.g., API base URL).
-
-4.  **Start the frontend development server:**
+3.   **Start the frontend development server:**
     ```bash
-    npm start
+    npm run dev
     # or
-    yarn start
+    yarn run dev
     ```
-    The frontend will typically run on `http://localhost:3001`.
+    The frontend will typically run on `http://localhost:5173`.
 
-## Project Structure
-
-ProjectBM/
-├── backend/        <-- NestJS Backend
-│   ├── src/
-│   ├── ...
-│   ├── package.json
-│   └── ...
-├── frontend/       <-- ReactJS Frontend
-│   ├── public/
-│   ├── src/
-│   ├── ...
-│   ├── package.json
-│   └── ...
-├── .gitignore
-├── README.md
-└── ...
