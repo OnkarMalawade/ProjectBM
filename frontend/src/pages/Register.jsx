@@ -22,7 +22,7 @@ export default function Register() {
         try {
             await register(form);
             alert("Registered successfully!");
-            navigate("/login");
+            navigate("/auth/login");
         } catch (err) {
             alert("Registration failed");
             console.error(err);
