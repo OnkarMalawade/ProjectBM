@@ -1,3 +1,4 @@
+// messages.service.ts
 import {
   Injectable,
   NotFoundException,
@@ -20,7 +21,7 @@ export class MessagesService {
     private readonly projectRepository: Repository<Project>,
   ) {}
 
-  async sendMessage(
+  async createMessage(
     projectId: number,
     createMessageDto: CreateMessageDto,
     sender: User,
@@ -35,14 +36,14 @@ export class MessagesService {
 
     if (!project) throw new NotFoundException('Project not found');
 
-    const isAuthorized =
-      project.client.id === senderId ||
-      project.assignedFreelancer?.id === senderId;
+    const participants = [project.client.id, project.assignedFreelancer?.id];
 
-    if (!isAuthorized) {
-      throw new ForbiddenException(
-        'You are not authorized to send a message on this project',
-      );
+    if (!participants.includes(senderId)) {
+      throw new ForbiddenException('You are not authorized to send messages');
+    }
+
+    if (!participants.includes(createMessageDto.receiverId)) {
+      throw new ForbiddenException('Invalid receiver for this project');
     }
 
     const fileUrls = files.map((file) => `/uploads/${file.filename}`);
@@ -64,14 +65,10 @@ export class MessagesService {
       relations: ['client', 'assignedFreelancer'],
     });
 
-    if (!project) {
-      throw new NotFoundException('Project not found');
-    }
+    if (!project) throw new NotFoundException('Project not found');
 
-    const isAuthorized =
-      project.client.id === userId || project.assignedFreelancer?.id === userId;
-
-    if (!isAuthorized) {
+    const participants = [project.client.id, project.assignedFreelancer?.id];
+    if (!participants.includes(userId)) {
       throw new ForbiddenException(
         'You are not authorized to view messages for this project',
       );
@@ -82,5 +79,23 @@ export class MessagesService {
       relations: ['sender', 'receiver'],
       order: { created_at: 'ASC' },
     });
+  }
+
+  async getUserProjects(userId: number, role: string) {
+    if (role === 'client') {
+      return this.projectRepository.find({
+        where: { client: { id: userId } },
+        relations: ['client', 'assignedFreelancer'],
+        order: { created_at: 'DESC' },
+      });
+    } else if (role === 'freelancer') {
+      return this.projectRepository.find({
+        where: { assignedFreelancer: { id: userId } },
+        relations: ['client', 'assignedFreelancer'],
+        order: { created_at: 'DESC' },
+      });
+    } else {
+      throw new ForbiddenException('Invalid role');
+    }
   }
 }

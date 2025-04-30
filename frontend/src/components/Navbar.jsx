@@ -1,6 +1,48 @@
-// src/components/Navbar.jsx
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
+
+const styles = {
+    navbar: {
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+        backgroundColor: "#2c3e50",
+        padding: "10px 20px",
+        color: "#ecf0f1",
+    },
+    left: {
+        display: "flex",
+        alignItems: "center",
+        gap: "15px",
+    },
+    right: {
+        display: "flex",
+        alignItems: "center",
+        gap: "10px",
+    },
+    logo: {
+        fontWeight: "bold",
+        fontSize: "20px",
+    },
+    link: {
+        textDecoration: "none",
+        color: "#ecf0f1",
+        padding: "6px 10px",
+        borderRadius: "5px",
+        transition: "color 0.3s ease",
+    },
+    welcome: {
+        fontWeight: "500",
+    },
+    logout: {
+        backgroundColor: "#e74c3c",
+        color: "white",
+        border: "none",
+        padding: "6px 12px",
+        borderRadius: "5px",
+        cursor: "pointer",
+    },
+};
 
 export default function Navbar() {
     const { user, logout } = useAuth();
@@ -12,23 +54,27 @@ export default function Navbar() {
         <nav style={styles.navbar}>
             <div style={styles.left}>
                 <span style={styles.logo}>🔥 Auth Portal</span>
-                {user?.role === "client" && (
+                <NavLink to="/projects" label="Projects" />
+                {user.role === "client" ? (
                     <>
                         <NavLink to="/projects/create" label="Add Project" />
                         <NavLink to="/projects/mine" label="My Projects" />
-                    </>
-                )}
-                <NavLink to="/projects" label="Projects" />
-                {user.role === "freelancer" ? (
-                    <>
-                        <NavLink to="/auth/profile" label="Dashboard" />
-                        <NavLink to="/auth/update" label="Edit Profile" />
-                    </>
-                ) : (
-                    <>
+                        <NavLink to="/invoices/create" label="New Invoice" />
                         <NavLink to="/auth/profile" label="Client Space" />
                         <NavLink to="/auth/update" label="Edit Info" />
                     </>
+                ) : (
+                    <>
+                        <NavLink to="/auth/profile" label="Dashboard" />
+                        <NavLink to="/auth/update" label="Edit Profile" />
+                        <NavLink to="/bids/accepted" label="Accepted Bids" />
+                        <NavLink to="/bids/mine" label="My Bids" />
+                        <NavLink to="/invoices/mine" label="My Invoices" />
+                    </>
+                )}
+                {/* Conditionally render Messages link */}
+                {(user.role === "client" || user.role === "freelancer") && (
+                    <NavLink to="/messages" label="Messages" />
                 )}
             </div>
             <div style={styles.right}>
@@ -53,52 +99,3 @@ function NavLink({ to, label }) {
         </Link>
     );
 }
-
-const styles = {
-    navbar: {
-        display: "flex",
-        justifyContent: "space-between",
-        alignItems: "center",
-        padding: "1rem 2rem",
-        backgroundColor: "#2c3e50", // dark navy
-        color: "#ecf0f1", // light text
-        boxShadow: "0 2px 8px rgba(0,0,0,0.2)",
-    },
-    left: {
-        display: "flex",
-        alignItems: "center",
-        gap: "1rem",
-    },
-    right: {
-        display: "flex",
-        alignItems: "center",
-        gap: "1.5rem",
-    },
-    logo: {
-        fontWeight: "bold",
-        fontSize: "1.3rem",
-        color: "#f1c40f",
-        marginRight: "1rem",
-    },
-    link: {
-        color: "#ecf0f1",
-        textDecoration: "none",
-        fontSize: "1rem",
-        transition: "color 0.3s ease",
-        padding: "0.25rem 0.5rem",
-    },
-    welcome: {
-        fontStyle: "italic",
-        fontSize: "1rem",
-    },
-    logout: {
-        backgroundColor: "#e74c3c",
-        border: "none",
-        padding: "0.5rem 1rem",
-        borderRadius: "6px",
-        color: "#fff",
-        cursor: "pointer",
-        fontWeight: "bold",
-        transition: "background-color 0.3s ease",
-    },
-};

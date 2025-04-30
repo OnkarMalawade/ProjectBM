@@ -11,6 +11,15 @@ import ProjectsPage from "./pages/ProjectsPage";
 import ProjectDetail from "./pages/ProjectDetail";
 import ClientProjectForm from "./pages/ClientProjectForm";
 import MyProjects from "./pages/MyProjects";
+import AcceptedBids from "./components/AcceptedBids";
+import SubmitBidForm from "./components/SubmitBidForm";
+import ProjectBids from "./components/ProjectBids";
+import MessagePage from "./pages/MessagePage";
+import CreateInvoicePage from "./pages/CreateInvoicePage";
+import FreelancerInvoicesPage from "./pages/FreelancerInvoicesPage";
+import MyBidsPage from "./pages/MyBidsPage";
+import NotFound from "./pages/NotFound";
+// import MessagePanel from "./components/MessagePanel";
 
 export default function App() {
     return (
@@ -44,7 +53,6 @@ export default function App() {
                             </ProtectedRoute>
                         }
                     />
-
                     <Route path="/projects" element={<ProjectsPage />} />
                     <Route path="/projects/:id" element={<ProjectDetail />} />
                     <Route
@@ -71,9 +79,79 @@ export default function App() {
                             </ProtectedRoute>
                         }
                     />
+                    <Route
+                        path="/invoices/create"
+                        element={
+                            <ProtectedRoute allowedRoles={["client"]}>
+                                <CreateInvoicePage />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/invoices/mine"
+                        element={
+                            <ProtectedRoute allowedRoles={["freelancer"]}>
+                                <FreelancerInvoicesPage />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/bids/accepted"
+                        element={
+                            <ProtectedRoute allowedRoles={["freelancer"]}>
+                                <AcceptedBids />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/bids/project/:projectId"
+                        element={
+                            <ProtectedRoute allowedRoles={["client"]}>
+                                <ProjectBids />
+                            </ProtectedRoute>
+                        }
+                    />
+                    <Route
+                        path="/bids/submit/:projectId"
+                        element={
+                            <ProtectedRoute allowedRoles={["freelancer"]}>
+                                <SubmitBidForm />
+                            </ProtectedRoute>
+                        }
+                    />
+                    {/* Messages Routes */}
+                    <Route
+                        path="/messages"
+                        element={
+                            <ProtectedRoute
+                                allowedRoles={["freelancer", "client"]}
+                            >
+                                <MessagePage />
+                            </ProtectedRoute>
+                        }
+                    />
+                    {/* <Route
+                        path="/messages/:id"
+                        element={
+                            <ProtectedRoute
+                                allowedRoles={["freelancer", "client"]}
+                            >
+                                <MessagePanel />
+                            </ProtectedRoute>
+                        }
+                    /> */}
+
+                    <Route
+                        path="/bids/mine"
+                        element={
+                            <ProtectedRoute allowedRoles={["freelancer"]}>
+                                <MyBidsPage />
+                            </ProtectedRoute>
+                        }
+                    />
 
                     {/* Fallback Route */}
-                    <Route path="*" element={<Landing />} />
+                    <Route path="*" element={<NotFound />} />
                 </Routes>
             </AuthProvider>
         </BrowserRouter>

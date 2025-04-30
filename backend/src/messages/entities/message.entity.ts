@@ -1,3 +1,4 @@
+// message.entity.ts
 import { Project } from 'src/projects/entities/project.entity';
 import { User } from 'src/users/entities/user.entity';
 import {
@@ -30,7 +31,7 @@ export class Message {
   content: string;
 
   @Column('simple-array', { nullable: true })
-  fileUrls: string[];
+  fileUrls?: string[];
 
   @CreateDateColumn()
   created_at: Date;

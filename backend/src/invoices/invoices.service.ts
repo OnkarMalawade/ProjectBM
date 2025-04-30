@@ -1,3 +1,4 @@
+// src/invoices/invoices.service.ts
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -5,18 +6,23 @@ import { Invoice } from './entities/invoice.entity';
 import { CreateInvoiceDto } from './dto/create-invoice.dto';
 import { Project } from '../projects/entities/project.entity';
 
+interface FullInvoiceData extends CreateInvoiceDto {
+  status: 'pending' | 'paid';
+}
+
 @Injectable()
 export class InvoicesService {
   constructor(
     @InjectRepository(Invoice)
     private invoiceRepo: Repository<Invoice>,
+
     @InjectRepository(Project)
     private projectRepo: Repository<Project>,
   ) {}
 
-  async createInvoice(dto: CreateInvoiceDto) {
+  async createInvoice(data: FullInvoiceData) {
     const project = await this.projectRepo.findOne({
-      where: { id: dto.projectId },
+      where: { id: data.projectId },
       relations: ['client', 'assignedFreelancer'],
     });
 
@@ -29,7 +35,7 @@ export class InvoicesService {
       client: project.client,
       freelancer: project.assignedFreelancer,
       amount: project.budget,
-      status: dto.status,
+      status: data.status,
     });
 
     return this.invoiceRepo.save(invoice);

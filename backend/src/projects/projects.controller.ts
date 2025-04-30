@@ -28,6 +28,13 @@ export class ProjectsController {
     return this.projectsService.create(createProjectDto, req.user);
   }
 
+  @Get('available')
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @Roles('freelancer')
+  getAvailableProjects() {
+    return this.projectsService.findAvailableProjects();
+  }
+
   @Get()
   findAll() {
     return this.projectsService.findAll();

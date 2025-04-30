@@ -5,6 +5,7 @@ import { Project } from './entities/project.entity';
 import { CreateProjectDto } from './dto/create-project.dto';
 import { UpdateProjectDto } from './dto/update-project.dto';
 import { User } from '../users/entities/user.entity';
+import { IsNull } from 'typeorm';
 
 @Injectable()
 export class ProjectsService {
@@ -15,6 +16,13 @@ export class ProjectsService {
     @InjectRepository(User)
     private usersRepository: Repository<User>,
   ) {}
+
+  async findAvailableProjects() {
+    return this.projectsRepository.find({
+      where: { assignedFreelancer: IsNull() },
+      relations: ['client'],
+    });
+  }
 
   async create(createProjectDto: CreateProjectDto, clientPayload: any) {
     const client = await this.usersRepository.findOneBy({

@@ -8,6 +8,9 @@ import {
   UseGuards,
   UploadedFiles,
   UseInterceptors,
+  ParseIntPipe,
+  BadRequestException,
+  Req,
 } from '@nestjs/common';
 import { MessagesService } from './messages.service';
 import { CreateMessageDto } from './dto/create-message.dto';
@@ -34,22 +37,35 @@ export class MessagesController {
       }),
     }),
   )
-  async sendMessageWithFiles(
+  async uploadMessageWithFiles(
+    @Param('projectId', ParseIntPipe) projectId: number,
+    @Req() req: any,
     @UploadedFiles() files: Express.Multer.File[],
-    @Body() createMessageDto: CreateMessageDto,
-    @Request() req,
-    @Param('projectId') projectId: number, // 🟢 inject from URL
   ) {
-    return this.messagesService.sendMessage(
-      +projectId,
-      createMessageDto,
-      req.user,
-      files,
-    );
+    const { receiverId, content } = req.body;
+
+    if (!receiverId || !content) {
+      throw new BadRequestException('Missing receiverId or content');
+    }
+
+    const dto: CreateMessageDto = {
+      receiverId: +receiverId,
+      content,
+    };
+
+    return this.messagesService.createMessage(projectId, dto, req.user, files);
   }
 
   @Get('project/:projectId')
-  async getMessages(@Param('projectId') projectId: number, @Request() req) {
-    return this.messagesService.getProjectMessages(+projectId, req.user.id);
+  async getMessages(
+    @Param('projectId', ParseIntPipe) projectId: number,
+    @Request() req,
+  ) {
+    return this.messagesService.getProjectMessages(projectId, req.user.id);
+  }
+
+  @Get('projects')
+  async getUserProjects(@Request() req) {
+    return this.messagesService.getUserProjects(req.user.id, req.user.role);
   }
 }

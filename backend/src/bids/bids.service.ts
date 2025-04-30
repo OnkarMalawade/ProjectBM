@@ -23,13 +23,18 @@ export class BidsService {
   async create(createBidDto: CreateBidDto, freelancerId: number) {
     const project = await this.projectsRepository.findOne({
       where: { id: createBidDto.projectId },
+      relations: ['assignedFreelancer'],
     });
 
     if (!project) {
       throw new NotFoundException('Project not found');
     }
 
-    const freelancer = new User(); // 👈 build user reference manually
+    if (project.assignedFreelancer) {
+      throw new ForbiddenException('Bidding is closed for this project');
+    }
+
+    const freelancer = new User();
     freelancer.id = freelancerId;
 
     const bid = this.bidsRepository.create({
@@ -104,11 +109,15 @@ export class BidsService {
     await this.bidsRepository
       .createQueryBuilder()
       .update(Bid)
-      .set({ status: BidStatus.PENDING }) // ✅ use enum
-      .where('project_id = :projectId AND id != :bidId', {
-        projectId: project.id,
-        bidId: bid.id,
-      })
+      .set({ status: BidStatus.PENDING })
+      .where(
+        'project_id = :projectId AND id != :bidId AND status != :accepted',
+        {
+          projectId: project.id,
+          bidId: bid.id,
+          accepted: BidStatus.ACCEPTED,
+        },
+      )
       .execute();
 
     return { message: 'Bid accepted and freelancer assigned to project' };
